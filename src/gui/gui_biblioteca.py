@@ -1,0 +1,101 @@
+
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+import requests
+
+from src.services.biblioteca import Biblioteca
+from src.models.libro import Libro
+
+
+class BibliotecaGUI:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Biblioteca Talento Solutions")
+
+        self.biblioteca = Biblioteca()
+
+        self.lista = tk.Listbox(root, width=60)
+        self.lista.pack(pady=10)
+
+        self._crear_botones()
+        self.actualizar_lista()
+
+    def _crear_botones(self):
+        botones = [
+            ("Agregar Libro", self.agregar),
+            ("Prestar Libro", self.prestar),
+            ("Devolver Libro", self.devolver),
+            ("Buscar Local", self.buscar_local),
+            ("Buscar Open Library", self.buscar_publico),
+            ("Actualizar", self.actualizar_lista),
+        ]
+
+        for texto, comando in botones:
+            tk.Button(self.root, text=texto, command=comando).pack(fill="x")
+
+    def actualizar_lista(self):
+        self.lista.delete(0, tk.END)
+        for libro in self.biblioteca.listar_libros():
+            estado = "Disponible" if libro.disponible else "Prestado"
+            self.lista.insert(
+                tk.END,
+                f"{libro.id} - {libro.titulo} - {libro.autor} ({estado})"
+            )
+
+    def agregar(self):
+        id_libro = simpledialog.askstring("ID", "ID del libro:")
+        titulo = simpledialog.askstring("Título", "Título:")
+        autor = simpledialog.askstring("Autor", "Autor:")
+
+        if not (id_libro and titulo and autor):
+            return
+
+        try:
+            libro = Libro(id_libro, titulo, autor)
+            self.biblioteca.agregar_libro(libro)
+            self.actualizar_lista()
+            messagebox.showinfo("Éxito", "Libro agregado.")
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
+
+    def prestar(self):
+        id_libro = simpledialog.askstring("Prestar", "ID del libro:")
+        ok, msg = self.biblioteca.prestar_libro(id_libro)
+        messagebox.showinfo("Resultado", msg)
+        self.actualizar_lista()
+
+    def devolver(self):
+        id_libro = simpledialog.askstring("Devolver", "ID del libro:")
+        ok, msg = self.biblioteca.devolver_libro(id_libro)
+        messagebox.showinfo("Resultado", msg)
+        self.actualizar_lista()
+
+    def buscar_local(self):
+        titulo = simpledialog.askstring("Buscar", "Título:")
+        libro = self.biblioteca.buscar_por_titulo(titulo)
+        if libro:
+            messagebox.showinfo("Encontrado", str(libro))
+        else:
+            messagebox.showwarning("No encontrado", "No existe.")
+
+    def buscar_publico(self):
+        titulo = simpledialog.askstring("Buscar OpenLibrary", "Título:")
+        if not titulo:
+            return
+
+        try:
+            r = requests.get(
+                f"https://openlibrary.org/search.json?title={titulo}"
+            )
+            r.raise_for_status()
+        except:
+            messagebox.showerror("Error", "No se pudo consultar Open Library.")
+            return
+
+        docs = r.json().get("docs", [])[:5]
+        resultado = "\n".join(
+            f"{d.get('title')} - {', '.join(d.get('author_name', ['Desconocido']))}"
+            for d in docs
+        )
+
+        messagebox.showinfo("Resultados", resultado or "Sin resultados.")

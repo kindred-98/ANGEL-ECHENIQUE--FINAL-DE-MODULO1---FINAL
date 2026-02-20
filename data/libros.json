@@ -1,0 +1,27 @@
+{
+    "1": {
+        "titulo": "kindred",
+        "autor": "riot",
+        "disponible": false
+    },
+    "5": {
+        "titulo": "Yasuo Sorieketon",
+        "autor": "Rito",
+        "disponible": true
+    },
+    "2": {
+        "titulo": "Volibear Dios del trueno",
+        "autor": "riot",
+        "disponible": false
+    },
+    "3": {
+        "titulo": "Wukong Bosque ancestral",
+        "autor": "riot",
+        "disponible": true
+    },
+    "4": {
+        "titulo": "Graves orden de la ciudad",
+        "autor": "Riot",
+        "disponible": false
+    }
+}

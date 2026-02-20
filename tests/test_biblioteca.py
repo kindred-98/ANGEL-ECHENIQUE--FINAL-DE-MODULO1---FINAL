@@ -1,5 +1,7 @@
 import pytest
-from src.biblioteca import Libro, Usuario, Biblioteca
+from src.services.biblioteca import Biblioteca
+from src.models.libro import Libro
+from src.models.usuario import Usuario
 
 # ---------------- TESTS BÁSICOS ----------------
 
