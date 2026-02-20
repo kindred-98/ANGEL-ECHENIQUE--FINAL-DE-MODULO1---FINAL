@@ -1,15 +1,15 @@
+
+# ---------------- FIXTURE ----------------
+
 import pytest
 from src.services.biblioteca import Biblioteca
 from src.models.libro import Libro
 
 
-# ---------------- FIXTURE ----------------
-
 @pytest.fixture
-def biblioteca():
-    # Usamos archivo temporal para no afectar datos reales
-    return Biblioteca(archivo="test_libros.json")
-
+def biblioteca(tmp_path):
+    archivo_temporal = tmp_path / "libros_test.json"
+    return Biblioteca(archivo=str(archivo_temporal))
 
 # ---------------- TESTS BÁSICOS ----------------
 
