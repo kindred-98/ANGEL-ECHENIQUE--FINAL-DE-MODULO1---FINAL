@@ -1,4 +1,4 @@
-
+import webbrowser
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 import requests
@@ -93,9 +93,27 @@ class BibliotecaGUI:
             return
 
         docs = r.json().get("docs", [])[:5]
-        resultado = "\n".join(
-            f"{d.get('title')} - {', '.join(d.get('author_name', ['Desconocido']))}"
-            for d in docs
-        )
 
-        messagebox.showinfo("Resultados", resultado or "Sin resultados.")
+        if not docs:
+            messagebox.showinfo("Resultados", "Sin resultados.")
+            return
+
+        ventana = tk.Toplevel(self.root)
+        ventana.title("Resultados Open Library")
+
+        tk.Label(ventana, text="Resultados de la búsqueda:", font=("Arial", 12, "bold")).pack(pady=5)
+
+        for d in docs:
+            titulo = d.get("title", "Sin título")
+            autores = ", ".join(d.get("author_name", ["Desconocido"]))
+            key = d.get("key")
+
+            url = f"https://openlibrary.org{key}" if key else None
+
+            texto = f"{titulo} - {autores}"
+
+            label = tk.Label(ventana, text=texto, fg="blue", cursor="hand2")
+            label.pack(anchor="w", padx=10)
+
+            if url:
+                label.bind("<Button-1>", lambda e, url=url: webbrowser.open(url))
