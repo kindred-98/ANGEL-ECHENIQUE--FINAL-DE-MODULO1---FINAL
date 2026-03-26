@@ -1,7 +1,11 @@
 import webbrowser
 import tkinter as tk
 from tkinter import messagebox, simpledialog
-import requests
+
+try:
+    import requests
+except ImportError:
+    requests = None
 
 from src.services.biblioteca import Biblioteca
 from src.models.libro import Libro
@@ -83,12 +87,20 @@ class BibliotecaGUI:
         if not titulo:
             return
 
+        if requests is None:
+            messagebox.showerror(
+                "Dependencia no instalada",
+                "Instale requests para buscar en Open Library:\n" \
+                "pip install requests"
+            )
+            return
+
         try:
             r = requests.get(
                 f"https://openlibrary.org/search.json?title={titulo}"
             )
             r.raise_for_status()
-        except:
+        except Exception:
             messagebox.showerror("Error", "No se pudo consultar Open Library.")
             return
 
